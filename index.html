@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marble Jar Countdown</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .top-section {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .description-section {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+
+            .top-section {
+                flex-direction: column;
+                gap: 30px;
+                margin-bottom: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .jar-container {
+            position: relative;
+            width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .jar-container {
+                width: 250px;
+                height: 350px;
+                margin: 0 auto;
+            }
+
+            .description-section {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jar-container {
+                width: 200px;
+                height: 300px;
+                margin: 0 auto;
+            }
+
+            .top-section {
+                gap: 20px;
+            }
+        }
+
+        .jar {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            background: rgba(200, 230, 255, 0.3);
+            border: 4px solid #4a90e2;
+            border-radius: 0 0 100px 100px;
+            overflow: hidden;
+            box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .jar {
+                width: 160px;
+                height: 240px;
+                border-radius: 0 0 80px 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jar {
+                width: 140px;
+                height: 200px;
+                border-radius: 0 0 70px 70px;
+                border-width: 3px;
+            }
+        }
+
+        .jar::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            right: -10px;
+            height: 30px;
+            background: #4a90e2;
+            border-radius: 10px 10px 5px 5px;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .jar::before {
+                top: -18px;
+                left: -8px;
+                right: -8px;
+                height: 26px;
+                border-radius: 8px 8px 4px 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jar::before {
+                top: -15px;
+                left: -6px;
+                right: -6px;
+                height: 22px;
+                border-radius: 6px 6px 3px 3px;
+            }
+        }
+
+        .jar-lid {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            background: #2c5aa0;
+            border-radius: 10px;
+            box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .jar-lid {
+                width: 50px;
+                height: 18px;
+                top: -35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jar-lid {
+                width: 45px;
+                height: 16px;
+                top: -30px;
+                border-radius: 8px;
+            }
+        }
+
+        .marbles {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 95%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: flex-end;
+            padding: 10px;
+            gap: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .marbles {
+                padding: 8px;
+                gap: 1.5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .marbles {
+                padding: 6px;
+                gap: 1px;
+            }
+        }
+
+        .marble {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.3), 
+                        inset 2px 2px 4px rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .marble {
+                width: 10px;
+                height: 10px;
+                box-shadow: inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.3), 
+                            inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .marble {
+                width: 8px;
+                height: 8px;
+                box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.3), 
+                            inset 1px 1px 2px rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        .marble:nth-child(5n+1) { background: radial-gradient(circle at 30% 30%, #ff6b6b, #d63031); }
+        .marble:nth-child(5n+2) { background: radial-gradient(circle at 30% 30%, #4ecdc4, #00b894); }
+        .marble:nth-child(5n+3) { background: radial-gradient(circle at 30% 30%, #45b7d1, #0984e3); }
+        .marble:nth-child(5n+4) { background: radial-gradient(circle at 30% 30%, #f9ca24, #f0932b); }
+        .marble:nth-child(5n+5) { background: radial-gradient(circle at 30% 30%, #6c5ce7, #a29bfe); }
+
+        .stats-panel {
+            flex: 1;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .stats-panel {
+                max-width: none;
+            }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4a90e2;
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                padding: 15px;
+                margin: 12px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 12px;
+                margin: 10px 0;
+            }
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-value {
+                font-size: 18px;
+            }
+        }
+
+        .countdown-info {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .countdown-info {
+                padding: 20px;
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown-info {
+                padding: 15px;
+                margin-top: 12px;
+            }
+        }
+
+        .countdown-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00b894;
+            width: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .jar-label {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #2d3436;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .jar-label {
+                font-size: 14px;
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jar-label {
+                font-size: 12px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Marbles Sadhana</h1>
+        
+        <div class="top-section">
+            <div class="description-section">
+                <div class="stat-card" style="background: #f8f9fa; border-left: 5px solid #6c757d; margin: 0;">
+                    <div style="font-size: 14px; color: #495057; line-height: 1.5; margin-top: 8px;">
+                        <strong>During GPS 2025</strong>, Abhaybhai shared a profound sadhana given to him by Gurudev to increase awareness.<br>
+                        Gurudev asked him, <em>"How many years do you think you have left in your life?"</em> Abhaybhai replied, <em>"Ten years."</em><br><br>
+                        
+                        Gurudev then suggested a strikingly simple practice: Take a <strong>glass jar</strong> and fill it with the number of <strong>marbles representing the number of weeks left in those 10 years</strong> — <strong>520 marbles</strong>. Then, <strong>remove one marble every week</strong>.<br><br>
+                        
+                        As Abhaybhai began this practice, he gradually realized its deeper significance. <strong>520 weeks</strong> — a visual countdown of time. Watching the marbles decrease week by week made him <strong>acutely aware of how limited our time truly is</strong>.<br><br>
+                        
+                        This simple yet powerful sadhana profoundly impacted him — It heightened his awareness and helped him utilize <strong>every moment</strong> as a <strong>precious opportunity for inner growth</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="jar-container">
+                <div class="jar">
+                    <div class="jar-lid"></div>
+                    <div class="marbles" id="marbles"></div>
+                </div>
+                <div class="jar-label">Glass Jar with 520 Marbles</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Marbles Remaining</div>
+                <div class="stat-value" id="marblesRemaining">519</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Marbles Extracted So Far</div>
+                <div class="stat-value" id="marblesExtracted">1</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Duration</div>
+                <div class="stat-value">10 Years</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Extraction Rate</div>
+                <div class="stat-value">Once a week, every Monday</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Start Date</div>
+                <div class="stat-value">Jul 14, 2025</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">End Date</div>
+                <div class="stat-value">Jun 25, 2035</div>
+            </div>
+        </div>
+
+        <div class="countdown-info">
+            <div class="countdown-title">Progress Status</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">One marble extracted so far</div>
+            <div style="margin-top: 10px; font-size: 14px; opacity: 0.9;" id="extractionDate">
+                First marble extracted on Monday, July 14, 2025
+            </div>
+            <div class="timeline">
+                <span>Start: Jul 2025</span>
+                <span>End: Jun 2035</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate marbles in the jar
+        function generateMarbles() {
+            const marblesContainer = document.getElementById('marbles');
+            const totalMarbles = 520;
+            
+            // Adjust number of displayed marbles based on screen size
+            let displayMarbles;
+            if (window.innerWidth <= 480) {
+                displayMarbles = Math.min(60, totalMarbles); // Fewer marbles for small screens
+            } else if (window.innerWidth <= 768) {
+                displayMarbles = Math.min(90, totalMarbles); // Medium amount for tablets
+            } else {
+                displayMarbles = Math.min(120, totalMarbles); // Full display for desktop
+            }
+
+            // Clear existing marbles
+            marblesContainer.innerHTML = '';
+
+            for (let i = 0; i < displayMarbles; i++) {
+                const marble = document.createElement('div');
+                marble.className = 'marble';
+                marblesContainer.appendChild(marble);
+            }
+        }
+
+        // Update countdown based on current date
+        function updateCountdown() {
+            const startDate = new Date('2025-07-14'); // Monday, July 14, 2025
+            const firstExtraction = new Date('2025-07-14'); // Same day
+            const currentDate = new Date();
+            
+            const totalMarbles = 520;
+            let marblesRemaining = totalMarbles;
+            let marblesExtracted = 0;
+            let progressPercent = 0;
+
+            if (currentDate >= firstExtraction) {
+                const weeksPassed = Math.floor((currentDate - firstExtraction) / (7 * 24 * 60 * 60 * 1000));
+                marblesExtracted = weeksPassed + 1; // +1 for the first extraction on start date
+                marblesRemaining = Math.max(0, totalMarbles - marblesExtracted);
+                progressPercent = (marblesExtracted / totalMarbles) * 100;
+            }
+
+            // Update numbers
+            document.getElementById('marblesRemaining').textContent = marblesRemaining;
+            document.getElementById('marblesExtracted').textContent = marblesExtracted;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            // Update dynamic text
+            updateProgressText(marblesExtracted);
+            updateExtractionDate(marblesExtracted, firstExtraction);
+        }
+
+        // Update progress text dynamically
+        function updateProgressText(marblesExtracted) {
+            const progressTextElement = document.getElementById('progressText');
+            
+            if (marblesExtracted === 0) {
+                progressTextElement.textContent = "No marbles extracted yet";
+            } else if (marblesExtracted === 1) {
+                progressTextElement.textContent = "One marble extracted so far";
+            } else if (marblesExtracted <= 20) {
+                const numbers = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                               'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+                progressTextElement.textContent = `${numbers[marblesExtracted]} marbles extracted so far`;
+            } else {
+                progressTextElement.textContent = `${marblesExtracted} marbles extracted so far`;
+            }
+        }
+
+        // Update extraction date dynamically
+        function updateExtractionDate(marblesExtracted, firstExtraction) {
+            const extractionDateElement = document.getElementById('extractionDate');
+            
+            if (marblesExtracted === 0) {
+                extractionDateElement.textContent = "Countdown will begin on Monday, July 14, 2025";
+            } else if (marblesExtracted === 1) {
+                extractionDateElement.textContent = "First marble extracted on Monday, July 14, 2025";
+            } else {
+                // Calculate the most recent extraction date
+                const mostRecentExtraction = new Date(firstExtraction);
+                mostRecentExtraction.setDate(mostRecentExtraction.getDate() + ((marblesExtracted - 1) * 7));
+                
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = mostRecentExtraction.toLocaleDateString('en-US', options);
+                
+                extractionDateElement.textContent = `Most recent marble extracted on ${formattedDate}`;
+            }
+        }
+
+        // Initialize
+        generateMarbles();
+        updateCountdown();
+
+        // Update every minute
+        setInterval(updateCountdown, 60000);
+
+        // Regenerate marbles on window resize for responsive design
+        window.addEventListener('resize', function() {
+            generateMarbles();
+        });
+    </script>
+</body>
+</html>
